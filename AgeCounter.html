@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- <meta charset="UTF-8"> -->
+    <title>AGE Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #000; /* Установка фона в черный */
+            color: #FFF; /* Установка цвета текста в белый */
+            margin: 0; /* Уберем стандартные отступы */
+            display: flex; /* Используем flexbox */
+            justify-content: center; /* Горизонтальное выравнивание по центру */
+            align-items: center; /* Вертикальное выравнивание по центру */
+            height: 100vh; /* Установка высоты во всю высоту экрана */
+        }
+
+        .container {
+            text-align: left;
+            display: inline-block;
+        }
+
+        h1 {
+            font-family: 'Raleway', sans-serif;
+            font-weight: 300; /* Тонкий вес для "AGE" */
+            font-size: 14px;
+            margin: 0;
+            padding: 0;
+        }
+
+        @media only screen and (max-width: 600px) {
+    /* Add responsive styles here */
+    body {
+        font-size: 14px;
+    }
+    .number {
+        font-size: 60px;
+    }
+    .fraction {
+        font-size: 20px;
+    }
+}
+
+@keyframes tremor {
+    0%, 100% { transform: translate(0, 0); }
+    25%, 75% { transform: translate(-1px, -1px); }
+    50% { transform: translate(1px, 1px); }
+}
+
+.number-container {
+    display: flex;
+    align-items: center;
+    animation: tremor 0.3s infinite; /* Ajuste a duração conforme necessário */
+}
+
+
+
+.number {
+    font-size: 80px;
+    margin: 0;
+    padding: 0;
+    display: inline;
+}
+
+.fraction {
+    font-size: 33px;
+    padding-left: 5px;
+}
+
+
+
+        .number, .fraction {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 500; /* Полуторное начертание для цифр */
+        }
+    </style>
+</head>
+
+<body>
+    <div class="outer-container">
+        <div class="container">
+            <div class="text-center">
+                <div class="number-container">
+                    <span class="number" id="mainAge"></span><span class="fraction" id="fractionAge"></span>
+                </div>
+                <div id="debug"></div>
+            </div>
+        </div>
+    </div>
+
+<script>
+        let birthYear = 2004;  // Ano de nascimento
+        let birthMonth = 9;    // Mês de nascimento
+        let birthDay = 11;
+
+    const mainAgeDiv = document.getElementById("mainAge");
+    const fractionAgeDiv = document.getElementById("fractionAge");
+
+    function isLeapYear(year) {
+        return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+    }
+
+    function fractionOfYearFromMinutes(minutes) {
+        const currentYear = new Date().getFullYear();
+        const daysInYear = isLeapYear(currentYear) ? 366 : 365;
+        return minutes / (daysInYear * 24 * 60);
+    }
+
+    function updateAge() {
+        const currentDate = new Date();
+
+        let yearsPassedSinceBirthYear = currentDate.getFullYear() - birthYear;
+
+        const birthdayThisYear = new Date(currentDate.getFullYear(), birthMonth - 1, birthDay);
+        const nextBirthday = new Date(currentDate.getFullYear() + 1, birthMonth - 1, birthDay);
+        const lastBirthday = new Date(currentDate.getFullYear() - 1, birthMonth - 1, birthDay);
+
+        let fractionOfYear;
+        if (currentDate >= birthdayThisYear) {
+            const minutesSinceBirthday = (currentDate - birthdayThisYear) / 60000;  // 60 * 1000
+            fractionOfYear = fractionOfYearFromMinutes(minutesSinceBirthday);
+        } else {
+            yearsPassedSinceBirthYear--;
+            const minutesUntilBirthday = (birthdayThisYear - currentDate) / 60000;
+            fractionOfYear = 1 - fractionOfYearFromMinutes(minutesUntilBirthday);
+        }
+
+        const age = yearsPassedSinceBirthYear + fractionOfYear;
+
+        const mainAge = Math.floor(age);
+        const fraction = (age - mainAge).toFixed(30).substring(2);
+
+        mainAgeDiv.textContent = mainAge;
+        fractionAgeDiv.textContent = "." + fraction;
+    }
+
+    setInterval(updateAge, 100);
+
+    window.wallpaperPropertyListener = {
+        applyUserProperties: function (properties) {
+            if (properties.birthyear) {
+                birthYear = properties.birthyear.value;
+            }
+            if (properties.birthmonth) {
+                birthMonth = properties.birthmonth.value;
+            }
+            if (properties.birthday) {
+                birthDay = properties.birthday.value;
+            }
+            updateAge();
+        }
+    };
+
+</script>
+
+</body>
+
+</html>
